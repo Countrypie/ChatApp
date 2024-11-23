@@ -182,11 +182,12 @@ public class GUIChats extends javax.swing.JFrame {
         
         //Se anaden los mensajes
         PanelConversacion.removeAll();
-        for(Mensaje mensaje : mensajes){
-            GUIPanelMensaje panelMensaje=new GUIPanelMensaje(mensaje.getContenido(),
-                    mensaje.getHora(),(!mensaje.getRemitente().equals(usuario)));
-            PanelConversacion.add(panelMensaje);
-        }
+        if (mensajes != null && !mensajes.isEmpty())
+            for(Mensaje mensaje : mensajes){
+                GUIPanelMensaje panelMensaje=new GUIPanelMensaje(mensaje.getContenido(),
+                        mensaje.getHora(),(!mensaje.getRemitente().equals(usuario)));
+                PanelConversacion.add(panelMensaje);
+            }
         
         //Se dibuja
         ScrollPanelConversacion.revalidate();ScrollPanelConversacion.repaint();
@@ -283,7 +284,7 @@ public class GUIChats extends javax.swing.JFrame {
                 //Si no sirve
                 try {
                     //Se intenta actualizar
-                    String nuevaReferencia=this.server.startChat(this.usuario.getUsername(), usuario, this.contrasena);
+                    String nuevaReferencia=this.server.startChat(this.usuario.getUsername(), this.contrasena, usuario);
                     objetoRemoto = (IPeer) Naming.lookup(referencias.get(usuario));
                     this.referencias.replace(usuario, nuevaReferencia);
                 } catch (Exception ex1) {
@@ -294,7 +295,7 @@ public class GUIChats extends javax.swing.JFrame {
         }else if(server!=null){
             //Si no hay referencia, se obtiene y se guarda
             try {
-                String nuevaReferencia=this.server.startChat(this.usuario.getUsername(), usuario, this.contrasena);
+                String nuevaReferencia=this.server.startChat(this.usuario.getUsername(), this.contrasena, usuario);
                 objetoRemoto = (IPeer) Naming.lookup(nuevaReferencia);
                 this.referencias.put(usuario, nuevaReferencia);
             } catch (Exception ex1) {
