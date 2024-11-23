@@ -53,8 +53,14 @@ public class GUIChats extends javax.swing.JFrame {
             conversacionActual.add(mensaje);
         
             //Para redibujar se llama a cambiarConversacion, asi actualiza los mensajes presentes
-            if(this.chatActual.equals(conversacion))
+            if(this.chatActual != null && this.chatActual.equals(conversacion))
                 this.cambiarConversacion(conversacion);
+
+            if(this.chatActual == null) {
+                String aux = this.chatActual;
+                this.cambiarConversacion(conversacion);
+                this.cambiarConversacion(aux);
+            }
         }
     }
     
@@ -77,8 +83,9 @@ public class GUIChats extends javax.swing.JFrame {
             }
 
             //Se establece el panel del amigo encontrado como conectado
-            if(buscando!=null)
+            if(buscando!=null) {
                 buscando.setConectado(true);
+            }
         }
     }
     //Fucnion que marca a un amigo como desconectado
