@@ -1,4 +1,4 @@
-package paquete.chatcliente;
+package cliente_cliente;
 
 import GUI.GUIChats;
 import GUI.GUIIniciarSesion;
@@ -7,8 +7,8 @@ import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import shared.CallbackServerInterface;
-import shared.User;
+import cliente_servidor.CallbackServerInterface;
+import cliente_servidor.User;
 
 //Aplicacion con la ejecucion principal en la parte de cliente y el servidor de objetos
 public class ChatCliente {

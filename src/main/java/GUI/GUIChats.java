@@ -10,10 +10,10 @@ import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.BoxLayout;
-import paquete.chatcliente.IPeer;
-import paquete.chatcliente.Mensaje;
-import shared.CallbackServerInterface;
-import shared.User;
+import cliente_cliente.IPeer;
+import cliente_cliente.Mensaje;
+import cliente_servidor.CallbackServerInterface;
+import cliente_servidor.User;
 
 public class GUIChats extends javax.swing.JFrame {
     
@@ -53,7 +53,7 @@ public class GUIChats extends javax.swing.JFrame {
             conversacionActual.add(mensaje);
         
             //Para redibujar se llama a cambiarConversacion, asi actualiza los mensajes presentes
-            if(this.chatActual != null && this.chatActual.equals(conversacion))
+            if(this.chatActual != null &&   this.chatActual.equals(conversacion))
                 this.cambiarConversacion(conversacion);
 
             if(this.chatActual == null) {

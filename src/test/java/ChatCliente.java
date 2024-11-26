@@ -11,9 +11,9 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import paquete.chatcliente.CallbackCliente;
-import paquete.chatcliente.Mensaje;
-import shared.User;
+import cliente_cliente.CallbackCliente;
+import cliente_cliente.Mensaje;
+import cliente_servidor.User;
 
 //Aplicacion con la ejecucion principal en la parte de cliente y el servidor de objetos
 public class ChatCliente {

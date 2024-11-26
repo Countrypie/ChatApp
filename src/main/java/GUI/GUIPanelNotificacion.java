@@ -1,7 +1,5 @@
 package GUI;
 
-import paquete.chatcliente.CallbackCliente;
-
 /**
  *
  * @author xavi

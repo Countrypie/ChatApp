@@ -3,9 +3,9 @@
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
-import shared.ICallbackCliente;
-import shared.CallbackServerInterface;
-import shared.User;
+import cliente_servidor.ICallbackCliente;
+import cliente_servidor.CallbackServerInterface;
+import cliente_servidor.User;
 
 /**
  *

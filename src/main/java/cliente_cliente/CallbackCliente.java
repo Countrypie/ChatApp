@@ -1,12 +1,12 @@
-package paquete.chatcliente;
+package cliente_cliente;
 
 import GUI.GUIChats;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
-import shared.ICallbackCliente;
-import shared.CallbackServerInterface;
-import shared.User;
+import cliente_servidor.ICallbackCliente;
+import cliente_servidor.CallbackServerInterface;
+import cliente_servidor.User;
 
 //Objeto del cliente que implementa las llamadas remotas
 public class CallbackCliente extends UnicastRemoteObject implements ICallbackCliente, IPeer{

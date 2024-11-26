@@ -6,9 +6,9 @@ import java.rmi.RemoteException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import paquete.chatcliente.CallbackCliente;
-import shared.User;
-import shared.CallbackServerInterface;
+import cliente_cliente.CallbackCliente;
+import cliente_servidor.User;
+import cliente_servidor.CallbackServerInterface;
 
 import javax.swing.*;
 
