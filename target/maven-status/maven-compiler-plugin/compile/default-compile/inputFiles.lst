@@ -1,0 +1,13 @@
+/home/xavi/Documentos/GitHub/ChatApp/src/main/java/GUI/GUIChats.java
+/home/xavi/Documentos/GitHub/ChatApp/src/main/java/GUI/GUIIniciarSesion.java
+/home/xavi/Documentos/GitHub/ChatApp/src/main/java/GUI/GUIPanelAmigo.java
+/home/xavi/Documentos/GitHub/ChatApp/src/main/java/GUI/GUIPanelMensaje.java
+/home/xavi/Documentos/GitHub/ChatApp/src/main/java/GUI/GUIPanelNotificacion.java
+/home/xavi/Documentos/GitHub/ChatApp/src/main/java/GUI/GUISolicitudAmistad.java
+/home/xavi/Documentos/GitHub/ChatApp/src/main/java/cliente_cliente/CallbackCliente.java
+/home/xavi/Documentos/GitHub/ChatApp/src/main/java/cliente_cliente/ChatCliente.java
+/home/xavi/Documentos/GitHub/ChatApp/src/main/java/cliente_cliente/IPeer.java
+/home/xavi/Documentos/GitHub/ChatApp/src/main/java/cliente_cliente/Mensaje.java
+/home/xavi/Documentos/GitHub/ChatApp/src/main/java/cliente_servidor/CallbackServerInterface.java
+/home/xavi/Documentos/GitHub/ChatApp/src/main/java/cliente_servidor/ICallbackCliente.java
+/home/xavi/Documentos/GitHub/ChatApp/src/main/java/cliente_servidor/User.java

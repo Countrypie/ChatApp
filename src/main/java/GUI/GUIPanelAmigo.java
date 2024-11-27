@@ -16,7 +16,8 @@ public class GUIPanelAmigo extends javax.swing.JPanel {
         this.chats=chats;
         this.nombre=nombre;
         
-        jTextField1.setText(nombre);
+        CampoNombre.setText(nombre);
+        this.setConectado(false);
     }
 
     public void setConectado(Boolean conectado) {
@@ -33,6 +34,14 @@ public class GUIPanelAmigo extends javax.swing.JPanel {
         return nombre;
     }
     
+    public void setMarcado(Boolean marcar){
+        if(marcar){
+            CampoNombre.setText("(!) "+nombre);
+        }else{
+            CampoNombre.setText(nombre);
+        }
+    }
+    
     
 
     /**
@@ -46,7 +55,7 @@ public class GUIPanelAmigo extends javax.swing.JPanel {
 
         jButton2 = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
-        jTextField1 = new javax.swing.JTextField();
+        CampoNombre = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
 
@@ -60,21 +69,20 @@ public class GUIPanelAmigo extends javax.swing.JPanel {
             }
         });
 
-        jTextField1.setEditable(false);
-        jTextField1.setFont(new java.awt.Font("Liberation Sans", 0, 24)); // NOI18N
-        jTextField1.setBorder(null);
-        jTextField1.setDisabledTextColor(new java.awt.Color(51, 51, 51));
-        jTextField1.setEnabled(false);
-        jTextField1.setSelectedTextColor(new java.awt.Color(0, 0, 0));
-        jTextField1.setSelectionColor(new java.awt.Color(0, 0, 0));
+        CampoNombre.setEditable(false);
+        CampoNombre.setFont(new java.awt.Font("Liberation Sans", 0, 24)); // NOI18N
+        CampoNombre.setBorder(null);
+        CampoNombre.setDisabledTextColor(new java.awt.Color(51, 51, 51));
+        CampoNombre.setEnabled(false);
+        CampoNombre.setSelectedTextColor(new java.awt.Color(0, 0, 0));
+        CampoNombre.setSelectionColor(new java.awt.Color(0, 0, 0));
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/BolaGris.png"))); // NOI18N
-        jLabel1.setText("test");
         jLabel1.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         jLabel1.setPreferredSize(new java.awt.Dimension(50, 50));
 
         jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Perfil.png"))); // NOI18N
-        jLabel2.setText("test");
+        jLabel2.setToolTipText("");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -86,7 +94,7 @@ public class GUIPanelAmigo extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 245, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(CampoNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 245, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -99,7 +107,7 @@ public class GUIPanelAmigo extends javax.swing.JPanel {
                         .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(CampoNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
 
@@ -135,14 +143,15 @@ public class GUIPanelAmigo extends javax.swing.JPanel {
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         this.chats.cambiarConversacion(nombre);
+        this.setMarcado(false);
     }//GEN-LAST:event_jButton2ActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField CampoNombre;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables
 }

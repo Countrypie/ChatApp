@@ -508,7 +508,6 @@ public class GUIIniciarSesion extends javax.swing.JFrame {
 
                 if (usuarioActual != null) {
                     cliente.setUsuario(usuarioActual);
-                    System.out.println("Debug, " + usuarioActual.getUsername() + usuarioActual.getFriends());
                     inicioExitoso = true; // Inicio de sesión correcto
                 }
             } catch (RemoteException ex) {
@@ -627,7 +626,10 @@ public class GUIIniciarSesion extends javax.swing.JFrame {
         try {
             exito = server.changePassword(nombreUsuario, contrasena, nuevaContrasena);
         } catch (RemoteException ex) {
-            Logger.getLogger(GUIIniciarSesion.class.getName()).log(Level.SEVERE, null, ex);
+            TextoErrorCambioContrasena.setText("No se pudo cambiar la contrasena");
+            TextoErrorCambioContrasena.setVisible(true);
+            this.revalidate();
+            this.repaint();
         }
 
         if (!exito) {
@@ -666,7 +668,10 @@ public class GUIIniciarSesion extends javax.swing.JFrame {
         try {
             exito = server.deleteAccount(nombreUsuario, contrasena);
         } catch (RemoteException ex) {
-            Logger.getLogger(GUIIniciarSesion.class.getName()).log(Level.SEVERE, null, ex);
+            TextoErrorCambioContrasena.setText("No se pudo borrar la cuenta");
+            TextoErrorCambioContrasena.setVisible(true);
+            this.revalidate();
+            this.repaint();
         }
 
         if (!exito) {

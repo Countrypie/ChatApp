@@ -14,6 +14,7 @@ import cliente_cliente.IPeer;
 import cliente_cliente.Mensaje;
 import cliente_servidor.CallbackServerInterface;
 import cliente_servidor.User;
+import javax.swing.JFrame;
 
 public class GUIChats extends javax.swing.JFrame {
     
@@ -43,6 +44,9 @@ public class GUIChats extends javax.swing.JFrame {
         //Se esconden textos de informacion
         TextoSolicitudEnviada.setVisible(false);
         TextoSolicitudEliminar.setVisible(false);
+        
+        //Se desactiva el cierre de pestana normal
+        this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
     }
     
     //Funcion que anade un mensaje a la conversacion
@@ -56,11 +60,37 @@ public class GUIChats extends javax.swing.JFrame {
             if(this.chatActual != null &&   this.chatActual.equals(conversacion))
                 this.cambiarConversacion(conversacion);
 
-            if(this.chatActual == null) {
-                String aux = this.chatActual;
-                this.cambiarConversacion(conversacion);
-                this.cambiarConversacion(aux);
+//            if(this.chatActual == null) {
+//                String aux = this.chatActual;
+//                this.cambiarConversacion(conversacion);
+//                this.cambiarConversacion(aux);
+//            }
+            
+            //Se marca que hubo un cambio en la pestana
+            if(Pestanas.getSelectedIndex()!=0){
+                Pestanas.setTitleAt(0,"(!) Amigos");
+                Pestanas.revalidate();Pestanas.repaint();
             }
+            
+            //Se tiene que marcar que hay un mensaje no leido
+            if(this.chatActual == null || !this.chatActual.equals(conversacion)){
+                //se busca el panel del amigo conectado
+                GUIPanelAmigo buscando=null;
+                Iterator iterador= panelesAmigos.iterator();
+                while(iterador.hasNext()){
+                    GUIPanelAmigo amigoActual=(GUIPanelAmigo)iterador.next();
+                    if(amigoActual.getNombre().equals(conversacion)){
+                        buscando=amigoActual;
+                        break;
+                    }
+                }
+                //Se marca el panel del amigo como pendiente de leer
+                if(buscando!=null) {
+                    buscando.setMarcado(true);
+                }
+            }
+            
+            
         }
     }
     
@@ -125,6 +155,19 @@ public class GUIChats extends javax.swing.JFrame {
             //Se anade al contenedor grafico
             PanelSolicitudes.add(panel);
             PanelSolicitudes.revalidate();PanelSolicitudes.repaint();
+            
+            //Se marca que hubo un cambio en las pestanas
+            if(TabPanelSolicitudes.getSelectedIndex()!=0 || Pestanas.getSelectedIndex()!=1){
+                TabPanelSolicitudes.setTitleAt(0,"(!) Solicitudes Pendientes");
+                TabPanelSolicitudes.revalidate();TabPanelSolicitudes.repaint();
+            }
+            if(Pestanas.getSelectedIndex()!=1){
+                    Pestanas.setTitleAt(1,"(!) Solicitudes de Amistad");
+                    Pestanas.revalidate();Pestanas.repaint();
+            }
+            
+            Pestanas.revalidate();Pestanas.repaint();
+            TabPanelSolicitudes.revalidate();TabPanelSolicitudes.repaint();
         }
     }
     
@@ -133,10 +176,12 @@ public class GUIChats extends javax.swing.JFrame {
         
         //proteccion extra por si ya era amigo, para no sobreescribir
         if(!this.usuario.getFriends().contains(amigo)){
+            
             //Se crean los GUIPanelAmigo
             GUIPanelAmigo panel=new GUIPanelAmigo(amigo,this);
             panelesAmigos.add(panel);
             PanelAmigos.add(panel);
+            PanelAmigos.revalidate();PanelAmigos.repaint();
 
             //Se actualiza la lista de amigos y de amigos conectados
             try {
@@ -145,7 +190,8 @@ public class GUIChats extends javax.swing.JFrame {
                 this.usuario.setFriendsConnected(this.server.obtainConnectedFriendList(
                         this.usuario.getUsername(), this.contrasena));
             } catch (RemoteException ex) {
-                Logger.getLogger(GUIChats.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.println("No se pudo actualizar la lista de amigos correctamente");
+                this.dispose();
             }
 
             //Se enciende la luz del panel si el amigo esta conectado
@@ -156,6 +202,14 @@ public class GUIChats extends javax.swing.JFrame {
             //Se crea una conversacion
             ArrayList<Mensaje> conversacion=new ArrayList<>();
             this.conversaciones.put(amigo, conversacion);
+            
+            //Se marca que hubo un cambio en la pestana
+            if(Pestanas.getSelectedIndex()!=0){
+                Pestanas.setTitleAt(0,"(!) Amigos");
+                Pestanas.revalidate();Pestanas.repaint();
+            }
+            
+            this.revalidate();this.repaint();
         }
     }
     
@@ -163,20 +217,43 @@ public class GUIChats extends javax.swing.JFrame {
     public void eliminarAmigo(String examigo){
         //proteccion extra por si no era amigo
         if(this.usuario.getFriends().contains(examigo)){
-            //Se busca el panel del amigo y se borra
-            GUIPanelAmigo buscando=null;
-            for(GUIPanelAmigo panel:this.panelesAmigos){
-                if(panel.getNombre().equals(examigo)){
-                    this.panelesAmigos.remove(panel);
-                    break;
+
+            //Se actualiza la lista de amigos y de amigos conectados
+            try {
+                this.usuario.setFriends(this.server.obtainFriendList(
+                        this.usuario.getUsername(), this.contrasena));
+                this.usuario.setFriendsConnected(this.server.obtainConnectedFriendList(
+                        this.usuario.getUsername(), this.contrasena));
+                
+                //Se busca el panel del amigo y se borra
+                GUIPanelAmigo buscando=null;
+                for(GUIPanelAmigo panel:this.panelesAmigos){
+                    if(panel.getNombre().equals(examigo)){
+                        this.panelesAmigos.remove(panel);
+                        PanelAmigos.remove(panel);
+                        break;
+                    }
                 }
+                
+                //Se elimina la conversacion
+                this.conversaciones.remove(examigo);
+
+                //Se borra la conversacion de la GUI si corresponde
+                if(this.chatActual!=null && this.chatActual.equals(examigo)){
+                    PanelConversacion.removeAll();
+                }
+
+                //Se marca que hubo un cambio en la pestana
+                if(Pestanas.getSelectedIndex()!=0){
+                    Pestanas.setTitleAt(0,"(!) Amigos");
+                }
+
+                this.revalidate();this.repaint();
+                
+            } catch (RemoteException ex) {
+                System.out.println("No se pudo actualizar la lista de amigos correctamente");
             }
 
-            //Se actualiza la lista de amigos
-            this.usuario.getFriends().remove(examigo);
-
-            //Se elimina la conversacion
-            this.conversaciones.remove(examigo);
         }
     }
     
@@ -212,6 +289,7 @@ public class GUIChats extends javax.swing.JFrame {
         this.panelesSolicitudes=new ArrayList<>();
         this.panelesNotificaciones=new ArrayList<>();
         
+        //Se anaden los amigos
         for(String amigo : usuario.getFriends()){
             //Se crean los GUIPanelAmigo y se marcan los conectados
             GUIPanelAmigo panel=new GUIPanelAmigo(amigo,this);
@@ -219,12 +297,37 @@ public class GUIChats extends javax.swing.JFrame {
             PanelAmigos.add(panel);
             if(usuario.getFriendsConnected().contains(amigo)){
                 panel.setConectado(true);
+            }else{
+                panel.setConectado(false);
             }
             
             //Se crea una conversacion
             ArrayList<Mensaje> conversacion=new ArrayList<>();
             this.conversaciones.put(amigo, conversacion);
         }
+        
+        //Se anaden las solicitudes de amistad pendientes
+        for(String solicitud:usuario.getFriendRequests()){
+            //Se anade el panel a la estructura de datos de la GUI
+            GUISolicitudAmistad panel=new GUISolicitudAmistad(this,solicitud);
+            this.panelesSolicitudes.add(panel);
+
+            //Se anade al contenedor grafico
+            PanelSolicitudes.add(panel);
+            PanelSolicitudes.revalidate();PanelSolicitudes.repaint();
+            
+            //Se marca que hubo un cambio en las pestanas
+            if(TabPanelSolicitudes.getSelectedIndex()!=0 || Pestanas.getSelectedIndex()!=1){
+                TabPanelSolicitudes.setTitleAt(0,"(!) Solicitudes Pendientes");
+            }
+            if(Pestanas.getSelectedIndex()!=1){
+                    Pestanas.setTitleAt(1,"(!) Solicitudes de Amistad");
+            }
+        }
+        
+        
+        //Se establece el titulo de la ventana
+        this.setTitle(this.usuario.getUsername());
         
         this.revalidate();
         this.repaint();
@@ -235,48 +338,52 @@ public class GUIChats extends javax.swing.JFrame {
     public void aceptoSolicitud(String usuario){
         try {
             server.acceptFriendRequest(this.usuario.getUsername(), usuario, contrasena);
-        } catch (RemoteException ex) {
-            Logger.getLogger(GUIChats.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        //Se busca al panel de la solicitud para eliminarlo
-        GUISolicitudAmistad buscando=null;
-        for(GUISolicitudAmistad panel: panelesSolicitudes){
-            if(panel.getUsuario().equals(usuario)){
-                panelesSolicitudes.remove(panel);
-                PanelSolicitudes.remove(panel);
-                break;
+            
+            //Se busca al panel de la solicitud para eliminarlo
+            GUISolicitudAmistad buscando=null;
+            for(GUISolicitudAmistad panel: panelesSolicitudes){
+                if(panel.getUsuario().equals(usuario)){
+                    panelesSolicitudes.remove(panel);
+                    PanelSolicitudes.remove(panel);
+                    break;
+                }
             }
-        }
-        
-        PestanaSolicitudes.revalidate();PestanaSolicitudes.repaint();
+
+            PestanaSolicitudes.revalidate();PestanaSolicitudes.repaint();
         
         //Se elimina la solicitud de la estructura del usuario
         this.usuario.getFriendRequests().remove(usuario);
+        
+        } catch (RemoteException ex) {
+            System.out.println("No se pudo aceptar la solicitud en este momento");
+        }
     }
     
     //Funcion que una solicitud de amistad invoca para rechazar su propia solicitud
     public void rechazoSolicitud(String usuario){
         try {
             server.rejectFriendRequest(this.usuario.getUsername(), usuario, contrasena);
-        } catch (RemoteException ex) {
-            Logger.getLogger(GUIChats.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        //Se busca al panel de la solicitud para eliminarlo
-        GUISolicitudAmistad buscando=null;
-        for(GUISolicitudAmistad panel: panelesSolicitudes){
-            if(panel.getUsuario().equals(usuario)){
-                panelesSolicitudes.remove(panel);
-                PanelSolicitudes.remove(panel);
-                break;
+            
+            //Se busca al panel de la solicitud para eliminarlo
+            GUISolicitudAmistad buscando=null;
+            for(GUISolicitudAmistad panel: panelesSolicitudes){
+                if(panel.getUsuario().equals(usuario)){
+                    panelesSolicitudes.remove(panel);
+                    PanelSolicitudes.remove(panel);
+                    break;
+                }
             }
+        
+            PestanaSolicitudes.revalidate();PestanaSolicitudes.repaint();
+
+            //Se elimina la solicitud de la estructura del usuario
+            this.usuario.getFriendRequests().remove(usuario);
+        
+        } catch (RemoteException ex) {
+            System.out.println("No se pudo aceptar la solicitud en este momento");
         }
         
-        PestanaSolicitudes.revalidate();PestanaSolicitudes.repaint();
         
-        //Se elimina la solicitud de la estructura del usuario
-        this.usuario.getFriendRequests().remove(usuario);
     }
     
     //Esta funcion devuelve una direccion RMI actualizada de un usuario a partir de su nombre
@@ -337,6 +444,16 @@ public class GUIChats extends javax.swing.JFrame {
         //Se anade a la interfaz grafica
         PanelNotificaciones.add(panel);
         
+        //Se marca que hubo un cambio en las pestanas
+        if(TabPanelSolicitudes.getSelectedIndex()!=1 || Pestanas.getSelectedIndex()!=1){
+            TabPanelSolicitudes.setTitleAt(1,"(!) Solicitudes enviadas");
+            TabPanelSolicitudes.revalidate();TabPanelSolicitudes.repaint();
+        }
+        if(Pestanas.getSelectedIndex()!=1){
+            Pestanas.setTitleAt(1,"(!) Solicitudes de Amistad");
+            Pestanas.revalidate();Pestanas.repaint();
+        }
+        
         ScrollPaneNotificaciones.revalidate();ScrollPaneNotificaciones.repaint();
     }
     
@@ -384,11 +501,19 @@ public class GUIChats extends javax.swing.JFrame {
             public void windowClosed(java.awt.event.WindowEvent evt) {
                 formWindowClosed(evt);
             }
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
         });
 
         Pestanas.setBackground(new java.awt.Color(204, 204, 204));
         Pestanas.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         Pestanas.setMaximumSize(new java.awt.Dimension(178, 117));
+        Pestanas.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                PestanasStateChanged(evt);
+            }
+        });
 
         PestanaAmigos.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
@@ -396,7 +521,7 @@ public class GUIChats extends javax.swing.JFrame {
         PanelAmigos.setLayout(PanelAmigosLayout);
         PanelAmigosLayout.setHorizontalGroup(
             PanelAmigosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 384, Short.MAX_VALUE)
+            .addGap(0, 428, Short.MAX_VALUE)
         );
         PanelAmigosLayout.setVerticalGroup(
             PanelAmigosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -407,11 +532,17 @@ public class GUIChats extends javax.swing.JFrame {
 
         Pestanas.addTab("Amigos", PestanaAmigos);
 
+        TabPanelSolicitudes.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                TabPanelSolicitudesStateChanged(evt);
+            }
+        });
+
         javax.swing.GroupLayout PanelSolicitudesLayout = new javax.swing.GroupLayout(PanelSolicitudes);
         PanelSolicitudes.setLayout(PanelSolicitudesLayout);
         PanelSolicitudesLayout.setHorizontalGroup(
             PanelSolicitudesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 382, Short.MAX_VALUE)
+            .addGap(0, 426, Short.MAX_VALUE)
         );
         PanelSolicitudesLayout.setVerticalGroup(
             PanelSolicitudesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -426,7 +557,7 @@ public class GUIChats extends javax.swing.JFrame {
         PanelNotificaciones.setLayout(PanelNotificacionesLayout);
         PanelNotificacionesLayout.setHorizontalGroup(
             PanelNotificacionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 382, Short.MAX_VALUE)
+            .addGap(0, 426, Short.MAX_VALUE)
         );
         PanelNotificacionesLayout.setVerticalGroup(
             PanelNotificacionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -482,7 +613,7 @@ public class GUIChats extends javax.swing.JFrame {
                                     .addGap(49, 49, 49)
                                     .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addComponent(CampoNombreSolicitud, javax.swing.GroupLayout.PREFERRED_SIZE, 236, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addContainerGap(86, Short.MAX_VALUE))
+                .addContainerGap(130, Short.MAX_VALUE))
         );
         PestanaAnadirAmigoLayout.setVerticalGroup(
             PestanaAnadirAmigoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -543,7 +674,7 @@ public class GUIChats extends javax.swing.JFrame {
                                     .addGap(49, 49, 49)
                                     .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addComponent(CampoNombreEliminar, javax.swing.GroupLayout.PREFERRED_SIZE, 236, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addContainerGap(86, Short.MAX_VALUE))
+                .addContainerGap(130, Short.MAX_VALUE))
         );
         PestanaEliminarAmigoLayout.setVerticalGroup(
             PestanaEliminarAmigoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -606,21 +737,21 @@ public class GUIChats extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(34, 34, 34)
-                        .addComponent(BotonCerrarSesion, javax.swing.GroupLayout.PREFERRED_SIZE, 307, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(Pestanas, javax.swing.GroupLayout.PREFERRED_SIZE, 392, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(Pestanas, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(60, 60, 60)
+                        .addComponent(BotonCerrarSesion, javax.swing.GroupLayout.PREFERRED_SIZE, 307, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 472, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 428, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(BotonEnviar)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(ScrollPanelConversacion))
-                .addContainerGap())
+                        .addComponent(BotonEnviar))
+                    .addComponent(ScrollPanelConversacion, javax.swing.GroupLayout.PREFERRED_SIZE, 527, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -628,13 +759,18 @@ public class GUIChats extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(Pestanas, javax.swing.GroupLayout.PREFERRED_SIZE, 540, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(ScrollPanelConversacion, javax.swing.GroupLayout.DEFAULT_SIZE, 542, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 8, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(BotonCerrarSesion, javax.swing.GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addComponent(BotonEnviar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(28, 28, 28))
+                    .addComponent(ScrollPanelConversacion, javax.swing.GroupLayout.DEFAULT_SIZE, 541, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                            .addComponent(BotonEnviar, javax.swing.GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE))
+                        .addGap(28, 28, 28))
+                    .addGroup(layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(BotonCerrarSesion, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
 
         Pestanas.getAccessibleContext().setAccessibleName("Amigos");
@@ -647,20 +783,21 @@ public class GUIChats extends javax.swing.JFrame {
     }//GEN-LAST:event_BotonCerrarSesionActionPerformed
 
     private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
+        
         try {
             if(this.server!=null)
                 this.server.logOut(this.usuario.getUsername(), contrasena);
+            System.exit(0);
         } catch (RemoteException ex) {
-            Logger.getLogger(GUIChats.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("No se pudo cerrar la sesión en el servidor");
         }
-        System.exit(0);
     }//GEN-LAST:event_formWindowClosed
 
     private void BotonEnviarSolicitudActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BotonEnviarSolicitudActionPerformed
         String amigo=CampoNombreSolicitud.getText();
         
-        //si aun no es amigo del usuario
-        if(!this.usuario.getFriends().contains(amigo)){
+        //si aun no es amigo del usuario y no se envia la solicitud a si mismo
+        if(!this.usuario.getFriends().contains(amigo) && !this.usuario.getUsername().equals(amigo)){
             try {
                 this.server.sendFriendRequest(this.usuario.getUsername(), amigo, contrasena);
 
@@ -671,7 +808,7 @@ public class GUIChats extends javax.swing.JFrame {
                 TextoSolicitudEnviada.setVisible(true);
             }
         }else{
-            TextoSolicitudEnviada.setText("Ya es amigo de este usuario");
+            TextoSolicitudEnviada.setText("No puede enviar una solicitud a este usuario");
             TextoSolicitudEnviada.setVisible(true);
         }
         
@@ -684,10 +821,14 @@ public class GUIChats extends javax.swing.JFrame {
         //Solo si era amigo del usuario
         if(this.usuario.getFriends().contains(examigo)){
             try {
-                this.server.removeFriend(this.usuario.getUsername(), examigo, contrasena);
-
-                TextoSolicitudEliminar.setText("Solicitud enviada correctamente");
-                TextoSolicitudEliminar.setVisible(true);
+                
+                if(this.server.removeFriend(this.usuario.getUsername(), examigo, contrasena)){
+                    TextoSolicitudEliminar.setText("Solicitud enviada correctamente");
+                    TextoSolicitudEliminar.setVisible(true);
+                }else{
+                    TextoSolicitudEliminar.setText("No se pudo enviar la solicitud");
+                    TextoSolicitudEliminar.setVisible(true);
+                }
             } catch (RemoteException ex) {
                 TextoSolicitudEliminar.setText("No se pudo enviar la solicitud");
                 TextoSolicitudEliminar.setVisible(true);
@@ -715,29 +856,65 @@ public class GUIChats extends javax.swing.JFrame {
                 try {
                     //Se envia el mensaje
                     IPeer usuarioRemoto=(IPeer) Naming.lookup(direccion);
-                    usuarioRemoto.recibirMensaje(this.usuario.getUsername(), mensaje);System.out.println(this.usuario.getUsername());
+                    usuarioRemoto.recibirMensaje(this.usuario.getUsername(), mensaje);
                     
                     //Se actualiza la informacion a la GUI local
                     CampoMensaje.setText("");
                     this.anadirMensaje(this.chatActual, mensaje);
                     
                 } catch (NotBoundException ex) {
-                    Logger.getLogger(GUIChats.class.getName()).log(Level.SEVERE, null, ex);
+                    System.out.println("No se pudo encontrar al objeto en el registro remoto");
                 } catch (MalformedURLException ex) {
-                    Logger.getLogger(GUIChats.class.getName()).log(Level.SEVERE, null, ex);
+                    System.out.println("La URL del registro remoto es inválida");
                 } catch (RemoteException ex) {
-                    Logger.getLogger(GUIChats.class.getName()).log(Level.SEVERE, null, ex);
+                    System.out.println("No se pudo conectar con el usuario remoto");
                 }
             }else{
                 //Se muestra que algo salio mal, el boton aparecera pulsado durante 3 segundos
                 try {
                     Thread.sleep(3000);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(GUIChats.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                } catch (InterruptedException ex){}
             }
         }
     }//GEN-LAST:event_BotonEnviarActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        this.dispose();
+    }//GEN-LAST:event_formWindowClosing
+
+    private void PestanasStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_PestanasStateChanged
+        
+        int pestanaActiva=Pestanas.getSelectedIndex();
+        
+        if(pestanaActiva==0){
+            Pestanas.setTitleAt(0,"Amigos");
+                
+        }else if(pestanaActiva==1){
+            
+            Pestanas.setTitleAt(1, "Solicitudes de Amistad");
+
+            int pestanaSecundariaActiva=TabPanelSolicitudes.getSelectedIndex();
+            if(pestanaSecundariaActiva==0){
+                TabPanelSolicitudes.setTitleAt(0,"Solicitudes Pendientes");
+
+            }else if(pestanaSecundariaActiva==1){
+                TabPanelSolicitudes.setTitleAt(1,"Solicitudes enviadas");
+            }
+        }
+        
+        Pestanas.revalidate();Pestanas.repaint();
+        TabPanelSolicitudes.revalidate();TabPanelSolicitudes.repaint();
+    }//GEN-LAST:event_PestanasStateChanged
+
+    private void TabPanelSolicitudesStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_TabPanelSolicitudesStateChanged
+        int pestanaSecundariaActiva=TabPanelSolicitudes.getSelectedIndex();
+        if(pestanaSecundariaActiva==0){
+            TabPanelSolicitudes.setTitleAt(0,"Solicitudes Pendientes");
+
+        }else if(pestanaSecundariaActiva==1){
+            TabPanelSolicitudes.setTitleAt(1,"Solicitudes enviadas");
+        }
+    }//GEN-LAST:event_TabPanelSolicitudesStateChanged
 
 
     /**

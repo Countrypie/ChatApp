@@ -21,9 +21,9 @@ public class GUIPanelNotificacion extends javax.swing.JPanel {
         
         this.CampoNombre.setText(nombre);
         if(aceptado){
-            this.CampoAceptado.setText("Aceptó tu solicitud");
+            this.CampoAceptado.setText("Ahora sois amigos");
         }else{
-            this.CampoAceptado.setText("Rechazó tu solicitud");
+            this.CampoAceptado.setText("Se rechazó la solicitud");
         }
     }
 

@@ -41,7 +41,6 @@ public class ChatCliente {
             clienteActual=new CallbackCliente(server,usuarioActual);
         }catch(Exception ex){
             System.out.println("No se ha podido crear un cliente remoto: "+ex.getMessage());
-            //!server.logOut(, );
             System.exit(1);
         }
         
@@ -55,6 +54,7 @@ public class ChatCliente {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
+                System.exit(1);
             }
         }
         
@@ -81,6 +81,7 @@ public class ChatCliente {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
+                System.exit(1);
             }
         }
     

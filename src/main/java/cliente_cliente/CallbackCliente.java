@@ -45,6 +45,7 @@ public class CallbackCliente extends UnicastRemoteObject implements ICallbackCli
     @Override
     public void amigoNuevo(String nombreUsuario) {
         this.chats.anadirAmigo(nombreUsuario);
+        this.chats.anadirNotificacion(nombreUsuario, true);
     }
 
     @Override
@@ -83,27 +84,23 @@ public class CallbackCliente extends UnicastRemoteObject implements ICallbackCli
     
     //Funcion que complementa al constructor de GUIChats para darle la informacion del servidor
     public void setupChats(GUIChats chats) throws RemoteException {
-        //try {
-            //Se asocia la ventana a este cliente
-            this.chats = chats;
-            
-            //!Si no se hace ya
-            //Se obtiene la lista de amigos
-            usuario.setFriends(server.obtainFriendList(usuario.getUsername(), contrasena));
-            //Se obtiene la lista de amigos conectados
-            usuario.setFriendsConnected(server.obtainConnectedFriendList(usuario.getUsername(), contrasena));
-            //Se obtienen las solicitudes de amistad
-            usuario.setFriendRequests(server.obtainFriendRequests(usuario.getUsername(), contrasena));
-            
-            //Se pasa informacion del usuario a la ventana
-            chats.setup(usuario,contrasena,server);
-            
-            //Se hace visible a la ventana
-            chats.setVisible(true);
-            
-        /*} catch (RemoteException ex) {
-            Logger.getLogger(CallbackCliente.class.getName()).log(Level.SEVERE, null, ex);
-        }*/
+        
+        //Se asocia la ventana a este cliente
+        this.chats = chats;
+
+        //Se obtiene la lista de amigos
+        usuario.setFriends(server.obtainFriendList(usuario.getUsername(), contrasena));
+        //Se obtiene la lista de amigos conectados
+        usuario.setFriendsConnected(server.obtainConnectedFriendList(usuario.getUsername(), contrasena));
+        //Se obtienen las solicitudes de amistad
+        usuario.setFriendRequests(server.obtainFriendRequests(usuario.getUsername(), contrasena));
+        System.out.println("Debug, "+usuario.getFriendRequests());
+
+        //Se pasa informacion del usuario a la ventana
+        chats.setup(usuario,contrasena,server);
+
+        //Se hace visible a la ventana
+        chats.setVisible(true);
         
     }
 }
