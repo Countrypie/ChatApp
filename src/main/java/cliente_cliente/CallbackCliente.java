@@ -94,7 +94,6 @@ public class CallbackCliente extends UnicastRemoteObject implements ICallbackCli
         usuario.setFriendsConnected(server.obtainConnectedFriendList(usuario.getUsername(), contrasena));
         //Se obtienen las solicitudes de amistad
         usuario.setFriendRequests(server.obtainFriendRequests(usuario.getUsername(), contrasena));
-        System.out.println("Debug, "+usuario.getFriendRequests());
 
         //Se pasa informacion del usuario a la ventana
         chats.setup(usuario,contrasena,server);

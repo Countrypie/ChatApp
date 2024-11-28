@@ -388,6 +388,11 @@ public class GUIChats extends javax.swing.JFrame {
     
     //Esta funcion devuelve una direccion RMI actualizada de un usuario a partir de su nombre
     private String buscarRMI(String usuario){
+        
+        //Proteccion extra
+        if(usuario==null)
+            return null;
+        
         IPeer objetoRemoto=null;
         
         if(referencias.containsKey(usuario) && server!=null){
@@ -705,7 +710,9 @@ public class GUIChats extends javax.swing.JFrame {
         });
 
         CampoMensaje.setColumns(20);
-        CampoMensaje.setRows(5);
+        CampoMensaje.setLineWrap(true);
+        CampoMensaje.setRows(3);
+        CampoMensaje.setWrapStyleWord(true);
         jScrollPane1.setViewportView(CampoMensaje);
 
         BotonEnviar.setText("Enviar");
@@ -847,12 +854,12 @@ public class GUIChats extends javax.swing.JFrame {
         Mensaje mensaje=new Mensaje(contenido,this.usuario.getUsername());
         
         //solo si hay alguna conversacion seleccionada
-        if(this.chatActual!=null){
+        if(this.chatActual!=null && this.usuario.getFriendsConnected().contains(this.chatActual)){
             //Se obtiene la direccion del otro usuario
             String direccion= this.buscarRMI(this.chatActual);
 
             //Para enviar el mensaje el usuario debe ser accesible
-            if(direccion!=null && this.usuario.getFriendsConnected().contains(this.chatActual)){
+            if(direccion!=null){
                 try {
                     //Se envia el mensaje
                     IPeer usuarioRemoto=(IPeer) Naming.lookup(direccion);
